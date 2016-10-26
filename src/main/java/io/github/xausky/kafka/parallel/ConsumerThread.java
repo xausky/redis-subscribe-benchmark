@@ -16,19 +16,19 @@ public class ConsumerThread extends Thread {
     private Metrics metrics;
     private boolean stop = false;
     private int id;
-    private KafkaConsumer<Object, Object> consumer;
+    private KafkaConsumer<String, String> consumer;
     public ConsumerThread(Properties props,int id,Metrics metrics){
         this.id = id;
         this.metrics = metrics;
-        consumer = new KafkaConsumer<Object, Object>(props);
+        consumer = new KafkaConsumer<String, String>(props);
         consumer.subscribe(Collections.singletonList("test"));
     }
     public void run() {
         Thread.currentThread().setName(String.format("ProducerThread-%03d",id));
         try {
             while (!stop){
-                ConsumerRecords<Object, Object> records = consumer.poll(100);
-                for (ConsumerRecord<Object, Object> record : records){
+                ConsumerRecords<String, String> records = consumer.poll(100);
+                for (ConsumerRecord<String, String> record : records){
                     metrics.consumed();
                 }
             }

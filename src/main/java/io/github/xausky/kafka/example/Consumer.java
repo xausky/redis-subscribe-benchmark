@@ -1,9 +1,6 @@
 package io.github.xausky.kafka.example;
 
-import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.consumer.*;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 
 import java.util.Collections;
 import java.util.Properties;
@@ -18,14 +15,14 @@ public class Consumer {
         props.put("zookeeper.connect", "localhost:2181");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "Default");
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, io.confluent.kafka.serializers.KafkaAvroDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, io.confluent.kafka.serializers.KafkaAvroDeserializer.class);
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringDeserializer.class);
 
-        KafkaConsumer<Object,Object> consumer = new KafkaConsumer<Object,Object>(props);
+        KafkaConsumer<String,String> consumer = new KafkaConsumer<String,String>(props);
         consumer.subscribe(Collections.singletonList("test"));
-        ConsumerRecords<Object, Object> records = consumer.poll(10000);
-        for (ConsumerRecord<Object,Object> record : records){
-            System.out.println(((GenericRecord)record.value()).get("id")+":"+((GenericRecord)record.value()).get("name"));
+        ConsumerRecords<String, String> records = consumer.poll(10000);
+        for (ConsumerRecord<String,String> record : records){
+            System.out.println(record.key()+":"+record.value());
         }
         consumer.close();
     }

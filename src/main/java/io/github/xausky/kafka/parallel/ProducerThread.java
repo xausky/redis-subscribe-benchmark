@@ -1,12 +1,8 @@
 package io.github.xausky.kafka.parallel;
 
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-import java.util.Collections;
 import java.util.Properties;
 import java.util.Random;
 
@@ -18,28 +14,21 @@ public class ProducerThread extends Thread {
     private int id;
     private int size;
     private boolean stop = false;
-    private KafkaProducer<Object, Object> producer;
+    private KafkaProducer<String, String> producer;
     public ProducerThread(Properties props,int size,int id,Metrics metrics){
         this.size = size;
         this.id = id;
         this.metrics = metrics;
-        this.producer = new KafkaProducer<Object, Object>(props);
+        this.producer = new KafkaProducer<String, String>(props);
     }
     public void run() {
         Thread.currentThread().setName(String.format("ProducerThread-%03d",id));
-
-        String userSchema = "{\"type\":\"record\",\"name\":\"record\",\"fields\":[{\"name\":\"id\",\"type\":\"int\"}, {\"name\":\"name\", \"type\": \"string\"}]}";
-        Schema.Parser parser = new Schema.Parser();
-        Schema schema = parser.parse(userSchema);
-        GenericRecord avroRecord = new GenericData.Record(schema);
-
         try {
             while (!stop){
-
                 String value = getRandomString(size);
-                avroRecord.put("id",value.hashCode());
-                avroRecord.put("name",value);
-                ProducerRecord<Object, Object> record = new ProducerRecord<Object, Object>("test",null,avroRecord);
+                ProducerRecord<String, String> record = new ProducerRecord<String, String>("test",
+                        value
+                        ,value);
                 producer.send(record);
                 metrics.produced();
             }
